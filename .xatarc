@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://AbdullahBakouni-s-workspace-atifg9.us-east-1.xata.sh/db/jsm_snapcast",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}

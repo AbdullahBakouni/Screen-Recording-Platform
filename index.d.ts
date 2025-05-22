@@ -294,4 +294,7 @@ interface PaginationResult<T> {
 declare interface RecordingHandlers {
   onDataAvailable: (e: BlobEvent) => void;
   onStop: () => void;
-}
+};
+
+
+
