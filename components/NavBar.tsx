@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
 
-const user = {};
 const NavBar = () => {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
   return (
     <header className="navbar">
       <nav>
@@ -22,16 +23,16 @@ const NavBar = () => {
 
         {user && (
           <figure>
-            <button onClick={() => router.push("/profile/123")}>
+            <button onClick={() => router.push(`/profile/${session?.user.id}`)}>
               <Image
-                src="/assets/images/dummy.jpg"
-                alt="user"
+                src={session?.user.image ?? ""}
+                alt="User"
                 width={36}
                 height={36}
                 className="rounded-full aspect-square"
               />
             </button>
-             <button
+            <button
               onClick={async () => {
                 return await authClient.signOut({
                   fetchOptions: {
