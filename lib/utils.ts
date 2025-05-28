@@ -142,6 +142,7 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
   ];
 };
 
+//تحصل على تدفقات الشاشة والمايكروفون (إذا طلبت)، وتتحقق من وجود صوت مرفق مع الشاشة
 export const getMediaStreams = async (
   withMic: boolean
 ): Promise<MediaStreams> => {
@@ -163,6 +164,7 @@ export const getMediaStreams = async (
   return { displayStream, micStream, hasDisplayAudio };
 };
 
+// دمج الصوت من شاشة العرض والمايكروفون في مسار واحد باستخدام Web Audio API
 export const createAudioMixer = (
   ctx: AudioContext,
   displayStream: MediaStream,
@@ -184,6 +186,7 @@ export const createAudioMixer = (
 
   return destination;
 };
+
 
 export const setupMediaRecorder = (stream: MediaStream) => {
   try {
@@ -212,6 +215,7 @@ export const getVideoDuration = (url: string): Promise<number | null> =>
     video.src = url;
   });
 
+  // إعداد MediaRecorder لتسجيل الفيديو/الصوت من التدفق، وتخزين البيانات عند توفرها وتشغيل رد الفعل عند الإيقاف
 export const setupRecording = (
   stream: MediaStream,
   handlers: RecordingHandlers
@@ -221,6 +225,8 @@ export const setupRecording = (
   recorder.onstop = handlers.onStop;
   return recorder;
 };
+
+// تنظيف وإيقاف جميع التراكات المفتوحة (الصوت والفيديو) وإيقاف MediaRecorder
 
 export const cleanupRecording = (
   recorder: MediaRecorder | null,
@@ -236,6 +242,8 @@ export const cleanupRecording = (
     s.getTracks().forEach((track: MediaStreamTrack) => track.stop())
   );
 };
+
+// تحويل قطع الفيديو المسجلة إلى Blob موحد، وإنشاء رابط مؤقت لمشاهدته
 
 export const createRecordingBlob = (
   chunks: Blob[]
