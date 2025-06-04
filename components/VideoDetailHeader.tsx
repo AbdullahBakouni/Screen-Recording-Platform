@@ -1,8 +1,12 @@
 "use client";
+import { deleteVideo, updateVideoVisibility } from "@/lib/actions/video";
+import { authClient } from "@/lib/auth-client";
 import { daysAgo } from "@/lib/utils";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import DroupDownList from "./DroupDownList";
+import { visibilities } from "@/constants";
 
 const VideoDetailHeader = ({
   title,
@@ -16,6 +20,14 @@ const VideoDetailHeader = ({
 }: VideoDetailHeaderProps) => {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+   const [visibilityState, setVisibilityState] = useState<Visibility>(
+    visibility as Visibility
+  );
+     const { data: session } = authClient.useSession();
+  const userId = session?.user.id;
+  const isOwner = userId === ownerId;
+  const [isUpdating, setIsUpdating] = useState(false);
   useEffect(() => {
     const changecheked = setTimeout(() => {
       if (copied) {
@@ -24,11 +36,59 @@ const VideoDetailHeader = ({
       return () => clearTimeout(changecheked);
     }, 2000);
   }, [copied]);
+
+  
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteVideo(videoId, thumbnailUrl);
+      router.push("/");
+    } catch (error) {
+      console.error("Error deleting video:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+   const handleVisibilityChange = async (option: string) => {
+    if (option !== visibilityState) {
+      setIsUpdating(true);
+      try {
+        await updateVideoVisibility(videoId, option as Visibility);
+        setVisibilityState(option as Visibility);
+      } catch (error) {
+        console.error("Error updating visibility:", error);
+      } finally {
+        setIsUpdating(false);
+      }
+    }
+  };
+
+
   const copyLink = () => {
     navigator.clipboard.writeText(`${window.location.origin}/video/${videoId}`);
     setCopied(true);
   };
 
+   const TriggerVisibility = (
+    <div className="visibility-trigger">
+      <div>
+        <Image
+          src="/assets/icons/eye.svg"
+          alt="Views"
+          width={16}
+          height={16}
+          className="mt-0.5"
+        />
+        <p>{visibilityState}</p>
+      </div>
+      <Image
+        src="/assets/icons/arrow-down.svg"
+        alt="Arrow Down"
+        width={16}
+        height={16}
+      />
+    </div>
+  );
   return (
     <header className="detail-header">
       <aside className="user-info">
@@ -61,6 +121,30 @@ const VideoDetailHeader = ({
             height={24}
           />
         </button>
+         {isOwner && (
+          <div className="user-btn">
+            <button
+              className="delete-btn"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete video"}
+            </button>
+            <div className="bar" />
+            {isUpdating ? (
+              <div className="update-stats">
+                <p>Updating...</p>
+              </div>
+            ) : (
+              <DroupDownList
+                options={visibilities}
+                selectedOption={visibilityState}
+                onOptionSelect={handleVisibilityChange}
+                triggerElement={TriggerVisibility}
+              />
+            )}
+          </div>
+        )}
       </aside>
     </header>
   );

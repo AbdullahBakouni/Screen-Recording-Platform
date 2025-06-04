@@ -1,7 +1,7 @@
 'use client';
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 const VideoCard = ({
   id,
@@ -14,6 +14,17 @@ const VideoCard = ({
   visibility,
   duration,
 }: VideoCardProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    navigator.clipboard.writeText(`${window.location.origin}/video/${id}`);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
+  };
   return (
     <Link href={`/video/${id}`} className="video-card">
       <Image
@@ -57,10 +68,10 @@ const VideoCard = ({
           })}
         </h2>
       </article>
-       <button className="copy-btn" onClick={() => {}}>
+       <button className="copy-btn" onClick={() => {handleCopy}}>
         <Image
           src={
-            "/assets/icons/link.svg"
+            copied ? "/assets/icons/checkmark.svg" : "/assets/icons/link.svg"
           }
           alt="Copy Link"
           width={18}
